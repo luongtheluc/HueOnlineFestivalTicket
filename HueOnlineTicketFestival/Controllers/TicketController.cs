@@ -1,4 +1,5 @@
 using HueOnlineTicketFestival.Models;
+using HueOnlineTicketFestival.Prototypes;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -91,9 +92,15 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTicket(int id)
+    public async Task<IActionResult> DeleteArtist(int id)
     {
         await _ticketService.DeleteTicketAsync(id);
-        return NoContent();
+        return Ok(new ApiResponse
+        {
+            Data = null,
+            Message = "Delete success",
+            Success = true,
+        });
+
     }
 }

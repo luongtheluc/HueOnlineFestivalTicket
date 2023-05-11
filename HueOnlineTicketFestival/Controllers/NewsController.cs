@@ -5,35 +5,35 @@ using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
 
 [ApiController]
-[Route("api/Artists")]
-public class ArtistController : ControllerBase
+[Route("api/News")]
+public class NewsController : ControllerBase
 {
-    private readonly IArtistService _ArtistService;
-    private readonly ILogger<ArtistController> _logger;
+    private readonly INewsService _newsService;
+    private readonly ILogger<NewsController> _logger;
+    const string NAMEOFCONTROLLER = "Tin tức"; //tin tuc
 
-
-    public ArtistController(IArtistService ArtistService, ILogger<ArtistController> logger)
+    public NewsController(INewsService newsService, ILogger<NewsController> logger)
     {
-        _ArtistService = ArtistService;
+        _newsService = newsService;
         _logger = logger;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllArtists()
+    public async Task<IActionResult> GetAllNewss()
     {
         _logger.LogInformation("get");
         try
         {
-            var Artists = await _ArtistService.GetAllArtistsAsync();
-            return Artists == null ? NotFound(new ApiResponse
+            var news = await _newsService.GetAllNewsAsync();
+            return news == null ? NotFound(new ApiResponse
             {
                 Data = null,
                 Message = "Đã xảy ra lỗi",
                 Success = false
             }) : Ok(new ApiResponse
             {
-                Data = Artists,
-                Message = "lấy ra tất cả nghệ sĩ thành công",
+                Data = news,
+                Message = "lấy ra tất cả " + NAMEOFCONTROLLER + " thành công",
                 Success = true
             });
         }
@@ -43,28 +43,28 @@ public class ArtistController : ControllerBase
             return BadRequest(new ApiResponse
             {
                 Data = null,
-                Message = "lấy ra tất cả nghệ sĩ thật bại",
+                Message = "lấy ra tất cả " + NAMEOFCONTROLLER + " thật bại",
                 Success = false
             });
         }
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetArtistById(int id)
+    public async Task<IActionResult> GetNewsById(int id)
     {
         _logger.LogInformation("get ");
         try
         {
-            var Artist = await _ArtistService.GetArtistByIdAsync(id);
-            return Artist == null ? NotFound(new ApiResponse
+            var news = await _newsService.GetNewsByIdAsync(id);
+            return news == null ? NotFound(new ApiResponse
             {
                 Data = null,
-                Message = "Nghệ sĩ này không tồn tại",
+                Message = "" + NAMEOFCONTROLLER + " này không tồn tại",
                 Success = false
             }) : Ok(new ApiResponse
             {
-                Data = Artist,
-                Message = "lấy ra nghệ sĩ thành công",
+                Data = news,
+                Message = "lấy ra " + NAMEOFCONTROLLER + " thành công",
                 Success = true
             });
         }
@@ -81,18 +81,18 @@ public class ArtistController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddArtist(Artist Artist)
+    public async Task<IActionResult> AddNews(News news)
     {
-        _logger.LogInformation("Creating a new Artist");
+        _logger.LogInformation("Creating a new News");
 
         try
         {
-            await _ArtistService.AddArtistAsync(Artist);
-            var result = CreatedAtAction(nameof(GetArtistById), new { id = Artist.ArtistId }, Artist);
+            await _newsService.AddNewsAsync(news);
+            var result = CreatedAtAction(nameof(GetNewsById), new { id = news.NewsId }, news);
             return Ok(new ApiResponse
             {
                 Data = result,
-                Message = "Thêm mới nghệ sĩ thành công",
+                Message = "Thêm mới " + NAMEOFCONTROLLER + " thành công",
                 Success = true
             });
         }
@@ -102,7 +102,7 @@ public class ArtistController : ControllerBase
             return BadRequest(new ApiResponse
             {
                 Data = null,
-                Message = "Thêm mới nghệ sĩ thất bại",
+                Message = "Thêm mới " + NAMEOFCONTROLLER + " thất bại",
                 Success = false
             });
         }
@@ -110,29 +110,29 @@ public class ArtistController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateArtist(int id, [FromBody] Artist Artist)
+    public async Task<IActionResult> UpdateNews(int id, [FromBody] News news)
     {
 
-        _logger.LogInformation("update a Artist");
+        _logger.LogInformation("update a News");
 
-        if (id != Artist.ArtistId)
+        if (id != news.NewsId)
         {
             return NotFound(new ApiResponse
             {
                 Data = null,
-                Message = "Không tìm thấy nghệ sĩ",
+                Message = "Không tìm thấy " + NAMEOFCONTROLLER + "",
                 Success = false,
             });
         }
         try
         {
-            await _ArtistService.UpdateArtistAsync(id, Artist);
-            var result = CreatedAtAction(nameof(GetArtistById), new { id = Artist.ArtistId }, Artist);
+            await _newsService.UpdateNewsAsync(id, news);
+            var result = CreatedAtAction(nameof(GetNewsById), new { id = news.NewsId }, news);
             return Ok(new ApiResponse
             {
                 Data = result,
                 Success = true,
-                Message = "Update nghệ sĩ thành công"
+                Message = "Update " + NAMEOFCONTROLLER + " thành công"
             });
         }
         catch (System.Exception e)
@@ -148,9 +148,9 @@ public class ArtistController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteArtist(int id)
+    public async Task<IActionResult> DeleteNews(int id)
     {
-        await _ArtistService.DeleteArtistAsync(id);
+        await _newsService.DeleteNewsAsync(id);
         return Ok(new ApiResponse
         {
             Data = null,
