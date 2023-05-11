@@ -19,6 +19,13 @@ builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IEventPictureService, EventPictureService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IEventTypeService, EventTypeService>();
+builder.Services.AddScoped<INewsService, Newservice>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ITicketCheckinService, TicketCheckinService>();
+builder.Services.AddScoped<ITicketTypeService, TicketTypeService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
