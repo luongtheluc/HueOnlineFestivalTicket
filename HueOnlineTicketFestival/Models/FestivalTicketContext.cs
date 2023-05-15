@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -412,7 +413,7 @@ public partial class FestivalTicketContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("name");
             entity.Property(e => e.Password)
-                .HasMaxLength(16)
+                .HasMaxLength(int.MaxValue)
                 .IsUnicode(false)
                 .HasColumnName("password");
             entity.Property(e => e.Phone)

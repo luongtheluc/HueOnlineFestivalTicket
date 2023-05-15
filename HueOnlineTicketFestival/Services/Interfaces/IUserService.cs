@@ -1,3 +1,4 @@
+using HueOnlineTicketFestival.data;
 using HueOnlineTicketFestival.Models;
 
 public interface IUserService
@@ -7,4 +8,6 @@ public interface IUserService
     Task<int> AddUserAsync(User user);
     Task UpdateUserAsync(int id, User user);
     Task DeleteUserAsync(int id);
+    Task<bool> CheckUserName(string username);
+    Task<User> GetUserByUsernamePasswordAsync(string username, string password);
 }

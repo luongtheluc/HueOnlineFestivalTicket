@@ -1,6 +1,12 @@
+using System.Security.Cryptography;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
+using HueOnlineTicketFestival.Prototypes;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 [ApiController]
 [Route("api/users")]
@@ -9,9 +15,11 @@ public class UserController : ControllerBase
     private readonly IUserService _UserService;
     private readonly ILogger<UserController> _logger;
 
+    private readonly IConfiguration _configuration;
 
-    public UserController(IUserService UserService, ILogger<UserController> logger)
+    public UserController(IUserService UserService, ILogger<UserController> logger, IConfiguration configuration)
     {
+        this._configuration = configuration;
         _UserService = UserService;
         _logger = logger;
     }
@@ -56,12 +64,22 @@ public class UserController : ControllerBase
         try
         {
             await _UserService.AddUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Register success",
+                Data = CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user)
+            });
         }
-        catch (System.Exception)
+        catch (System.Exception e)
         {
 
-            return BadRequest();
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Register fail: " + e.GetBaseException(),
+                Data = null,
+            });
         }
 
     }
@@ -95,4 +113,53 @@ public class UserController : ControllerBase
         await _UserService.DeleteUserAsync(id);
         return NoContent();
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(string username, string password)
+    {
+        if (!await _UserService.CheckUserName(username))
+        {
+            return NotFound("username not found");
+        }
+        var user = await _UserService.GetUserByUsernamePasswordAsync(username, password);
+        if (user != null)
+        {
+            string token = CreateToken(user);
+
+            return Ok(new ApiResponse
+            {
+                Message = "Login success",
+                Data = token,
+                Success = true,
+
+            });
+        }
+        else
+        {
+            return NotFound("password wrong");
+        }
+
+    }
+
+    private string CreateToken(User user)
+    {
+        List<Claim> claims = new List<Claim>{
+            new Claim(ClaimTypes.Name, user.Username)
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:SecretKey").Value!));
+
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(7),
+            signingCredentials: creds
+        );
+
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+        return jwt;
+
+    }
+
+
 }

@@ -9,7 +9,7 @@ public partial class User
 
     public string Username { get; set; } = null!;
 
-    public string? Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 
     public string? UserImage { get; set; }
 
