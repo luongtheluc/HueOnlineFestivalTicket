@@ -7,6 +7,7 @@ using HueOnlineTicketFestival.Prototypes;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Configuration;
 
 [ApiController]
 [Route("api/users")]
@@ -15,11 +16,9 @@ public class UserController : ControllerBase
     private readonly IUserService _UserService;
     private readonly ILogger<UserController> _logger;
 
-    private readonly IConfiguration _configuration;
 
-    public UserController(IUserService UserService, ILogger<UserController> logger, IConfiguration configuration)
+    public UserController(IUserService UserService, ILogger<UserController> logger)
     {
-        this._configuration = configuration;
         _UserService = UserService;
         _logger = logger;
     }
@@ -146,18 +145,23 @@ public class UserController : ControllerBase
         List<Claim> claims = new List<Claim>{
             new Claim(ClaimTypes.Name, user.Username)
         };
+        var secretKey = "g4gvaPfOulR6bdI6KNL5ikcqbGc7Ouq4";
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:SecretKey").Value!));
+        if (secretKey != null)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-        var token = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.Now.AddDays(7),
-            signingCredentials: creds
-        );
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: creds
+            );
 
-        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-        return jwt;
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
+        }
+        return null;
 
     }
 
