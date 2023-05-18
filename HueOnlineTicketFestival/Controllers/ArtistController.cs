@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/Artists")]
@@ -18,7 +19,7 @@ public class ArtistController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllArtists()
     {
         _logger.LogInformation("get");

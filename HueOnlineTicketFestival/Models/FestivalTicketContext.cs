@@ -416,6 +416,10 @@ public partial class FestivalTicketContext : DbContext
                 .HasMaxLength(int.MaxValue)
                 .IsUnicode(false)
                 .HasColumnName("password");
+            // entity.Property(e => e.VerificationToken).HasColumnName("VerificationToken").HasMaxLength(int.MaxValue);
+            // entity.Property(e => e.PasswordResetToken).HasColumnName("PasswordResetToken").HasMaxLength(int.MaxValue);
+            // entity.Property(e => e.VerifyAt).HasColumnType("datetime").HasColumnName("VerifyAt");
+            // entity.Property(e => e.ResetTokenExpries).HasColumnType("datetime").HasColumnName("ResetTokenExpries");
             entity.Property(e => e.Phone)
                 .HasMaxLength(11)
                 .IsUnicode(false)

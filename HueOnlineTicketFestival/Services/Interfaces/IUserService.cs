@@ -10,4 +10,7 @@ public interface IUserService
     Task DeleteUserAsync(int id);
     Task<bool> CheckUserName(string username);
     Task<User> GetUserByUsernamePasswordAsync(string username, string password);
+    Task<int> VerifyEmail(string token);
+    Task<int> ForgotPassword(string email);
+    Task<int> ResetPassword(string token, string password);
 }

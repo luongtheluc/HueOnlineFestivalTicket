@@ -20,14 +20,20 @@ public partial class User
     public string? Name { get; set; }
 
     public string? Phone { get; set; }
+    public string? Email { get; set; }
+
 
     public DateTime? CreateAt { get; set; }
 
     public DateTime? UpdateAt { get; set; }
 
-    public string? Email { get; set; }
-
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+
+    public string? VerificationToken { get; set; }
+    public DateTime? VerifyAt { get; set; }
+    public string PasswordResetToken { get; set; } = string.Empty;
+    public DateTime? ResetTokenExpries { get; set; }
+
 }

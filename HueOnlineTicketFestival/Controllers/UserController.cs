@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
+using HueOnlineTicketFestival.data;
 
 [ApiController]
 [Route("api/users")]
@@ -55,20 +56,40 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddUser(User user)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(string email, string username, string password)
     {
         _logger.LogInformation("Creating a new User");
 
         try
         {
-            await _UserService.AddUserAsync(user);
-            return Ok(new ApiResponse
+            var newUser = new User
             {
-                Success = true,
-                Message = "Register success",
-                Data = CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user)
-            });
+                Email = email,
+                Username = username,
+                Password = password,
+                VerificationToken = jwtHandler.CreateRandomToken()
+            };
+
+
+            if (await _UserService.AddUserAsync(newUser) != -1)
+            {
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Register success",
+                    Data = CreatedAtAction(nameof(GetUserById), new { id = newUser.UserId }, newUser)
+                });
+            }
+            else
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Register fail: ",
+                    Data = null,
+                });
+            }
         }
         catch (System.Exception e)
         {
@@ -82,6 +103,7 @@ public class UserController : ControllerBase
         }
 
     }
+
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] User user)
@@ -121,6 +143,10 @@ public class UserController : ControllerBase
             return NotFound("username not found");
         }
         var user = await _UserService.GetUserByUsernamePasswordAsync(username, password);
+        if (user.VerifyAt == null)
+        {
+            return BadRequest("Not verify");
+        }
         if (user != null)
         {
             string token = CreateToken(user);
@@ -139,11 +165,29 @@ public class UserController : ControllerBase
         }
 
     }
+    [HttpPost("verify")]
+    public async Task<IActionResult> Verify(string token)
+    {
+
+        if (await _UserService.VerifyEmail(token) != -1)
+        {
+            return Ok("User verify");
+        }
+        else
+        {
+            return BadRequest("Invalid token");
+        }
+
+    }
+
+
 
     private string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim>{
-            new Claim(ClaimTypes.Name, user.Username)
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(ClaimTypes.Role, "User"),
         };
         var secretKey = "g4gvaPfOulR6bdI6KNL5ikcqbGc7Ouq4";
 
@@ -165,5 +209,35 @@ public class UserController : ControllerBase
 
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(string email)
+    {
+        if (await _UserService.ForgotPassword(email) != -1)
+        {
+            return Ok();
+
+        }
+        else
+        {
+            return BadRequest();
+        }
+
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+
+        if (await _UserService.ResetPassword(request.Token, request.Password) != -1)
+        {
+            return Ok("Password successfully reset.");
+
+        }
+        else
+        {
+            return BadRequest();
+        }
+
+    }
 
 }
