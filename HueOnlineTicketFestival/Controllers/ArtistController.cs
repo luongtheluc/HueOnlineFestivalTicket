@@ -50,7 +50,7 @@ public class ArtistController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetArtistById(int id)
     {
         _logger.LogInformation("get ");

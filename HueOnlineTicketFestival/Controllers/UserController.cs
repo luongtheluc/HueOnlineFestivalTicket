@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using HueOnlineTicketFestival.data;
+using MimeKit;
 
 [ApiController]
 [Route("api/users")]
@@ -205,7 +207,7 @@ public class UserController : ControllerBase
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
         }
-        return null;
+        return null!;
 
     }
 
@@ -214,7 +216,7 @@ public class UserController : ControllerBase
     {
         if (await _UserService.ForgotPassword(email) != -1)
         {
-            return Ok();
+            return Ok("success");
 
         }
         else
@@ -223,6 +225,7 @@ public class UserController : ControllerBase
         }
 
     }
+
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)

@@ -13,7 +13,7 @@ public class TicketService : ITicketService
     {
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
-        return ticket.TicketId;
+        return ticket.TicketId!;
     }
 
     public async Task DeleteTicketAsync(int id)

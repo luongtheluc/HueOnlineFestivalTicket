@@ -1,5 +1,7 @@
 using System.Text;
 using HueOnlineTicketFestival.Models;
+using HueOnlineTicketFestival.Services.Implementations;
+using HueOnlineTicketFestival.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,6 +55,8 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ITicketCheckinService, TicketCheckinService>();
 builder.Services.AddScoped<ITicketTypeService, TicketTypeService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

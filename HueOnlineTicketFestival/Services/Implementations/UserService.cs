@@ -1,15 +1,20 @@
+using System.Net;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using HueOnlineTicketFestival.Models;
 using HueOnlineTicketFestival.data;
 using HueOnlineTicketFestival.Prototypes;
+using HueOnlineTicketFestival.Services.Interfaces;
+using System.Web;
 
 public class UserService : IUserService
 {
     private readonly FestivalTicketContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public UserService(FestivalTicketContext context, IHttpContextAccessor httpContextAccessor)
+    private readonly IEmailService _emailService;
+    public UserService(FestivalTicketContext context, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
     {
+        this._emailService = emailService;
         this._httpContextAccessor = httpContextAccessor;
         this._context = context;
     }
@@ -82,8 +87,15 @@ public class UserService : IUserService
     public async Task<User> GetUserByUsernamePasswordAsync(string username, string password)
     {
         var user = await _context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
-        var verify = BCrypt.Net.BCrypt.Verify(password, user.Password);
-        return verify ? user : null;
+        if (user != null)
+        {
+            var verify = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            if (verify)
+            {
+                return user;
+            }
+        }
+        return null!;
     }
 
     public async Task<int> VerifyEmail(string token)
@@ -118,11 +130,21 @@ public class UserService : IUserService
         user.PasswordResetToken = jwtHandler.CreateRandomToken();
         user.ResetTokenExpries = DateTime.Now.AddDays(1);
         await _context.SaveChangesAsync();
+
+        var sendEmail = new EmailDTO
+        {
+            To = email,
+            Subject = "Reset password link",
+            Body = "<a target=" + "_blank" + " href=" + "http://localhost:5017/reset-password/" + user.PasswordResetToken + ">CLICK HERE</a>"
+
+        };
+        await _emailService.SendEmailAsync(sendEmail);
         return 1;
     }
 
     public async Task<int> ResetPassword(string token, string password)
     {
+        var u = await _context.Users.FirstOrDefaultAsync(u => u.Username == "theluc123");
         var user = await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
         if (user == null || user.ResetTokenExpries < DateTime.Now)
         {

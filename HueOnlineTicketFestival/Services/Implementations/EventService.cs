@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using HueOnlineTicketFestival.Models;
+using HueOnlineTicketFestival.data;
 
 public class EventService : IEventService
 {
@@ -9,11 +10,24 @@ public class EventService : IEventService
         this._context = context;
     }
 
-    public async Task<int> AddEventAsync(Event events)
+    public async Task<int> AddEventAsync(EventRequest events)
     {
-        _context.Events.Add(events);
-        await _context.SaveChangesAsync();
-        return events.EventId;
+        if (events != null)
+        {
+            var newEvent = new Event
+            {
+                EventContent = events.EventContent,
+                EventName = events.EventName,
+                EventTypeId = events.EventTypeId,
+                CreateAt = DateTime.Now
+
+            };
+
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
+            return newEvent.EventId;
+        }
+        return -1;
     }
 
 

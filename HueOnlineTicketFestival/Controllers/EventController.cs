@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using HueOnlineTicketFestival.data;
 
 [ApiController]
 [Route("api/Events")]
@@ -81,13 +82,14 @@ public class EventController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEvent(Event events)
+    public async Task<IActionResult> AddEvent(EventRequest events)
     {
         _logger.LogInformation("Creating a new Event");
+
         try
         {
-            await _EventService.AddEventAsync(events);
-            var result = CreatedAtAction(nameof(GetEventById), new { id = events.EventId }, events);
+            var id = await _EventService.AddEventAsync(events);
+            var result = _EventService.GetEventByIdAsync(id);
             return Ok(new ApiResponse
             {
                 Data = result,
