@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
+using HueOnlineTicketFestival.Prototypes;
+using HueOnlineTicketFestival.data;
 
 [ApiController]
 [Route("api/EventPictures")]
@@ -9,13 +11,21 @@ public class EventPictureController : ControllerBase
     private readonly IEventPictureService _EventPictureService;
     private readonly ILogger<EventPictureController> _logger;
 
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public EventPictureController(IEventPictureService EventPictureService, ILogger<EventPictureController> logger)
+    public EventPictureController(IEventPictureService EventPictureService, ILogger<EventPictureController> logger, IWebHostEnvironment webHostEnvironment)
     {
+        this._webHostEnvironment = webHostEnvironment;
         _EventPictureService = EventPictureService;
         _logger = logger;
     }
-
+    [HttpGet("get-image-by-id")]
+    public async Task<IActionResult> GetImageById(int id)
+    {
+        var images = await _EventPictureService.GetEventPictureByIdAsync(id);
+        var image = System.IO.File.OpenRead(_webHostEnvironment.WebRootPath + "\\Images\\" + images.EventImageName);
+        return File(image, "image/jpeg");
+    }
     [HttpGet]
     public async Task<IActionResult> GetAllEventPictures()
     {
@@ -23,6 +33,14 @@ public class EventPictureController : ControllerBase
         try
         {
             var eventPictures = await _EventPictureService.GetAllEventPicturesAsync();
+            if (eventPictures != null && eventPictures.Count() > 0)
+            {
+
+                foreach (var item in eventPictures)
+                {
+                    item.EventImageName = "http://localhost:5017/api/EventPictures/get-image-by-id?id=" + item.EventImageId;
+                }
+            }
             return eventPictures == null ? BadRequest() : Ok(eventPictures);
         }
         catch (System.Exception e)
@@ -93,6 +111,63 @@ public class EventPictureController : ControllerBase
     public async Task<IActionResult> DeleteEventPicture(int id)
     {
         await _EventPictureService.DeleteEventPictureAsync(id);
-        return NoContent();
+        return Ok(new ApiResponse
+        {
+            Data = null,
+            Message = "Success",
+            Success = true
+        });
     }
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload([FromForm] UploadFile obj)
+    {
+        if (obj.Files!.Length > 0)
+        {
+            try
+            {
+                if (!Directory.Exists(_webHostEnvironment.WebRootPath + "\\Images\\"))
+                {
+                    Directory.CreateDirectory(_webHostEnvironment.WebRootPath + "\\Images\\");
+                }
+                Guid id = Guid.NewGuid();
+                using (FileStream fileStream = System.IO.File.Create(_webHostEnvironment.WebRootPath + "\\Images\\" + id + obj.Files.FileName))
+                {
+                    obj.Files.CopyTo(fileStream);
+                    await fileStream.FlushAsync();
+                    var eventPicture = new EventPicture
+                    {
+                        EventImageName = id + obj.Files.FileName,
+                    };
+                    await _EventPictureService.AddEventPictureAsync(eventPicture);
+                    return Ok(new ApiResponse
+                    {
+                        Data = "\\Images\\" + obj.Files.FileName,
+                        Message = "upload success",
+                        Success = true
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+                return BadRequest(new ApiResponse
+                {
+                    Data = null,
+                    Message = ex.ToString(),
+                    Success = false
+                });
+            }
+        }
+        else
+        {
+            return BadRequest(new ApiResponse
+            {
+                Data = null,
+                Message = "upload fail",
+                Success = false
+            });
+        }
+    }
+
+
 }

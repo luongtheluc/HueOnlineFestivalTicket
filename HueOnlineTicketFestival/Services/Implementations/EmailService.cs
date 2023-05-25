@@ -44,8 +44,8 @@ namespace HueOnlineTicketFestival.Services.Implementations
                 };
             }
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
-            await smtp.ConnectAsync("smtp.ethereal.email", 587, MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync("hank.swift@ethereal.email", "P7yTz38cQKNbhSddR9");
+            await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync("thelucpro1306@gmail.com", "maqnlxwowiroxaow");
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }

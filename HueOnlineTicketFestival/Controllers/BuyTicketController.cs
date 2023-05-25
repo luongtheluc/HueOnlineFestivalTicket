@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using HueOnlineTicketFestival.data;
@@ -8,6 +9,7 @@ using HueOnlineTicketFestival.Models;
 using HueOnlineTicketFestival.Prototypes;
 using HueOnlineTicketFestival.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace HueOnlineTicketFestival.Controllers
 {
@@ -28,22 +30,27 @@ namespace HueOnlineTicketFestival.Controllers
 
         }
         [HttpPost]
-        public async Task<IActionResult> BuyTicket(string email)
+        public async Task<IActionResult> BuyTicket(string email, int id)
         {
             var newEmail = new EmailDTO
             {
                 Subject = "Buy event ticket success",
                 To = email,
-                Body = "QR ticket"
+                Body = "<h1>Đây là QR vé của bạn</h1><br><br><br><p>Sử dụng để checkin khi vào cổng</p>"
             };
-            string text = "Hello, QR Code!";
-            Bitmap qrCodeImage = ImageHelper.GenerateQRCode(text);
-            string imagesFolderPath = Path.Combine(_hostingEnvironment.ContentRootPath, "public\\images");
+            string publicPath = _hostingEnvironment.WebRootPath;
+            string qrFolderPath = Path.Combine(publicPath, "QR");
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(id.ToString(), QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new QRCode(qrCodeData);
 
+            using (Bitmap bitmap = qrCode.GetGraphic(20))
+            {
+                string qrFilePath = Path.Combine(qrFolderPath, "qr_code_" + Guid.NewGuid() + ".png");
 
-            qrCodeImage.Save(imagesFolderPath, System.Drawing.Imaging.ImageFormat.Png);
-
-
+                bitmap.Save(qrFilePath, ImageFormat.Png);
+                await _emailService.SendEmailAsync(newEmail, qrFilePath);
+            }
             return Ok();
         }
     }
