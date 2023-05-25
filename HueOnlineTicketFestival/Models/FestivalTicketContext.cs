@@ -136,7 +136,8 @@ public partial class FestivalTicketContext : DbContext
 
             entity.Property(e => e.EventImageId).HasColumnName("eventImageID");
             entity.Property(e => e.EventImageName)
-                .HasMaxLength(50)
+                                .HasMaxLength(int.MaxValue)
+
                 .IsUnicode(false)
                 .HasColumnName("eventImageName");
 
