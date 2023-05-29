@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/customers")]
@@ -16,7 +17,7 @@ public class CustomerController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllCustumer()
     {
         _logger.LogInformation("get");
@@ -32,7 +33,7 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "User")]
     public async Task<IActionResult> GetCustomerById(int id)
     {
         _logger.LogInformation("get ");
@@ -48,8 +49,8 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddTicket(Customer customer)
+    [HttpPost, Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddCustomer(Customer customer)
     {
         _logger.LogInformation("Creating a new ticket");
 
@@ -65,7 +66,7 @@ public class CustomerController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
     {
 
@@ -88,7 +89,7 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteTicket(int id)
     {
         await _custumerService.DeleteCustomerAsync(id);

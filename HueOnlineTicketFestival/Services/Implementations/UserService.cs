@@ -79,7 +79,6 @@ public class UserService : IUserService
     {
 
         var result = await _context.Users.CountAsync(x => x.Username == userName) > 0;
-        Console.WriteLine(result);
         return result;
 
     }
@@ -95,7 +94,7 @@ public class UserService : IUserService
                 return user;
             }
         }
-        return null!;
+        return user;
     }
 
     public async Task<int> VerifyEmail(string token)
@@ -144,7 +143,7 @@ public class UserService : IUserService
 
     public async Task<int> ResetPassword(string token, string password)
     {
-        var u = await _context.Users.FirstOrDefaultAsync(u => u.Username == "theluc123");
+        // var u = await _context.Users.FirstOrDefaultAsync(u => u.Username == "theluc123");
         var user = await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
         if (user == null || user.ResetTokenExpries < DateTime.Now)
         {
@@ -153,10 +152,36 @@ public class UserService : IUserService
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
         user.Password = passwordHash;
-        user.PasswordResetToken = null;
+        user.PasswordResetToken = "0";
         user.ResetTokenExpries = null;
-
+        await UpdateUserAsync(user.UserId, user);
         await _context.SaveChangesAsync();
         return 1;
+    }
+
+    public async Task<int> CheckRefreshToken(string token)
+    {
+        if (await _context.Users.CountAsync(u => u.RefreshToken == token) > 0)
+        {
+            var user = await _context.Users.Where(p => p.RefreshToken == token).FirstOrDefaultAsync();
+            if (user!.RefreshTokenExpries > DateTime.Now)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    public async Task<User> GetUserByRefreshToken(string token)
+    {
+        var user = await _context.Users.Where(u => u.RefreshToken == token).FirstOrDefaultAsync();
+        return user!;
     }
 }

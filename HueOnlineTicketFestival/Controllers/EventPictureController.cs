@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using HueOnlineTicketFestival.Prototypes;
 using HueOnlineTicketFestival.data;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/EventPictures")]
@@ -19,14 +20,14 @@ public class EventPictureController : ControllerBase
         _EventPictureService = EventPictureService;
         _logger = logger;
     }
-    [HttpGet("get-image-by-id")]
+    [HttpGet("get-image-by-id"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetImageById(int id)
     {
         var images = await _EventPictureService.GetEventPictureByIdAsync(id);
         var image = System.IO.File.OpenRead(_webHostEnvironment.WebRootPath + "\\Images\\" + images.EventImageName);
         return File(image, "image/jpeg");
     }
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllEventPictures()
     {
         _logger.LogInformation("get");
@@ -50,7 +51,7 @@ public class EventPictureController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetEventPictureById(int id)
     {
         _logger.LogInformation("get ");
@@ -66,7 +67,7 @@ public class EventPictureController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddEventPicture(EventPicture eventPicture)
     {
         _logger.LogInformation("Creating a new EventPicture");
@@ -84,7 +85,7 @@ public class EventPictureController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEventPicture(int id, [FromBody] EventPicture eventPicture)
     {
 
@@ -107,7 +108,7 @@ public class EventPictureController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEventPicture(int id)
     {
         await _EventPictureService.DeleteEventPictureAsync(id);
@@ -118,7 +119,7 @@ public class EventPictureController : ControllerBase
             Success = true
         });
     }
-    [HttpPost("upload")]
+    [HttpPost("upload"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> Upload([FromForm] UploadFile obj)
     {
         if (obj.Files!.Length > 0)

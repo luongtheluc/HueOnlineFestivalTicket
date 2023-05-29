@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/Permissions")]
@@ -18,13 +19,14 @@ public class PermissionController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllPermissions()
     {
         _logger.LogInformation("get");
         try
         {
             var Permission = await _permissionService.GetAllPermissionsAsync();
+
             return Permission == null ? NotFound(new ApiResponse
             {
                 Data = null,
@@ -49,7 +51,7 @@ public class PermissionController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetPermissionById(int id)
     {
         _logger.LogInformation("get ");
@@ -80,7 +82,7 @@ public class PermissionController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddPermission(Permission Permission)
     {
         _logger.LogInformation("Creating a new Permission");
@@ -109,7 +111,7 @@ public class PermissionController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdatePermission(int id, [FromBody] Permission Permission)
     {
 
@@ -147,7 +149,7 @@ public class PermissionController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeletePermission(int id)
     {
         await _permissionService.DeletePermissionAsync(id);

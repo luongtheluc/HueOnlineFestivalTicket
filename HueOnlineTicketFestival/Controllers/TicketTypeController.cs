@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/TicketTypes")]
@@ -18,7 +19,7 @@ public class TicketTypeController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllTicketTypes()
     {
         _logger.LogInformation("get");
@@ -49,7 +50,7 @@ public class TicketTypeController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetTicketTypeById(int id)
     {
         _logger.LogInformation("get ");
@@ -80,7 +81,7 @@ public class TicketTypeController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddTicketType(TicketType ticketType)
     {
         _logger.LogInformation("Creating a new TicketType");
@@ -109,7 +110,7 @@ public class TicketTypeController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateTicketType(int id, [FromBody] TicketType ticketType)
     {
 
@@ -147,7 +148,7 @@ public class TicketTypeController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteTicketType(int id)
     {
         await _ticketTypeService.DeleteTicketTypeAsync(id);

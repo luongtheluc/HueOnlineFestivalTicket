@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
+using HueOnlineTicketFestival.data;
 
 [ApiController]
 [Route("api/News")]
@@ -80,15 +82,28 @@ public class NewsController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddNews(News news)
+    [HttpPost, Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddNews(NewsRequest news)
     {
+        if (news is null)
+        {
+            return BadRequest();
+        }
+
         _logger.LogInformation("Creating a new News");
 
         try
         {
-            await _newsService.AddNewsAsync(news);
-            var result = CreatedAtAction(nameof(GetNewsById), new { id = news.NewsId }, news);
+            var newNews = new News
+            {
+                NewName = news.NewName,
+                EventId = news.EventId,
+                NewsContent = news.NewsContent,
+                CreateAt = DateTime.Now,
+
+            };
+            await _newsService.AddNewsAsync(newNews);
+            var result = CreatedAtAction(nameof(GetNewsById), new { id = newNews.NewsId }, newNews);
             return Ok(new ApiResponse
             {
                 Data = result,
@@ -109,8 +124,8 @@ public class NewsController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateNews(int id, [FromBody] News news)
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateNews(int id, [FromBody] NewsRequest news)
     {
 
         _logger.LogInformation("update a News");
@@ -126,8 +141,16 @@ public class NewsController : ControllerBase
         }
         try
         {
-            await _newsService.UpdateNewsAsync(id, news);
-            var result = CreatedAtAction(nameof(GetNewsById), new { id = news.NewsId }, news);
+            var newNews = new News
+            {
+                NewName = news.NewName,
+                EventId = news.EventId,
+                NewsContent = news.NewsContent,
+                UpdateAt = DateTime.Now,
+
+            };
+            await _newsService.UpdateNewsAsync(id, newNews);
+            var result = CreatedAtAction(nameof(GetNewsById), new { id = newNews.NewsId }, newNews);
             return Ok(new ApiResponse
             {
                 Data = result,
@@ -147,7 +170,7 @@ public class NewsController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteNews(int id)
     {
         await _newsService.DeleteNewsAsync(id);

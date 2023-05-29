@@ -14,7 +14,7 @@ namespace HueOnlineTicketFestival.Services.Implementations
         public async Task SendEmailAsync(EmailDTO request, string filepath = null!)
         {
             var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("hank.swift@ethereal.email"));
+            email.From.Add(MailboxAddress.Parse("thelucpro1306@gmail.com"));
             email.To.Add(MailboxAddress.Parse(request.To));
             email.Subject = request.Subject;
 

@@ -11,6 +11,7 @@ using HueOnlineTicketFestival.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace HueOnlineTicketFestival.Controllers
 {
@@ -51,10 +52,13 @@ namespace HueOnlineTicketFestival.Controllers
                 + " chúc mừng bạn đã đặt vé tham dự sự kiện " + events.EventName + " được diễn ra tại " + location.LocationName + " thành công </p>"
                 + "<p>Dưới đây là mã QR dùng để checkin khi vào cổng</p>"
             };
+            string output = JsonConvert.SerializeObject(ticket);
+
+
             string publicPath = _hostingEnvironment.WebRootPath;
             string qrFolderPath = Path.Combine(publicPath, "QR");
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(ticket.ToString(), QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(output, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new QRCode(qrCodeData);
 
             using (Bitmap bitmap = qrCode.GetGraphic(20))

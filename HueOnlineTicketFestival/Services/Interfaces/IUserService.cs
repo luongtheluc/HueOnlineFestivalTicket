@@ -13,4 +13,6 @@ public interface IUserService
     Task<int> VerifyEmail(string token);
     Task<int> ForgotPassword(string email);
     Task<int> ResetPassword(string token, string password);
+    Task<int> CheckRefreshToken(string token);
+    Task<User> GetUserByRefreshToken(string token);
 }

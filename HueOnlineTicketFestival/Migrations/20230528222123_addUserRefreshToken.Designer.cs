@@ -4,6 +4,7 @@ using HueOnlineTicketFestival.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HueOnlineTicketFestival.Migrations
 {
     [DbContext(typeof(FestivalTicketContext))]
-    partial class FestivalTicketContextModelSnapshot : ModelSnapshot
+    [Migration("20230528222123_addUserRefreshToken")]
+    partial class addUserRefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -278,9 +281,8 @@ namespace HueOnlineTicketFestival.Migrations
                         .HasColumnName("newName");
 
                     b.Property<string>("NewsContent")
-                        .HasMaxLength(2147483647)
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("NewsContent");
+                        .HasColumnType("text")
+                        .HasColumnName("newsContent");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime")
@@ -533,12 +535,6 @@ namespace HueOnlineTicketFestival.Migrations
                     b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RefreshTokenCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("RefreshTokenExpries")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ResetTokenExpries")
                         .HasColumnType("datetime2");

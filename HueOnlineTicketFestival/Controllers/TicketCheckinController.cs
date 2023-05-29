@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/TicketCheckins")]
@@ -18,7 +19,7 @@ public class TicketCheckinController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllticketCheckins()
     {
         _logger.LogInformation("get");
@@ -49,7 +50,7 @@ public class TicketCheckinController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetticketCheckinById(int id)
     {
         _logger.LogInformation("get ");
@@ -80,7 +81,7 @@ public class TicketCheckinController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddticketCheckin(TicketCheckin ticketCheckin)
     {
         _logger.LogInformation("Creating a new ticketCheckin");
@@ -109,7 +110,7 @@ public class TicketCheckinController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateticketCheckin(int id, [FromBody] TicketCheckin ticketCheckin)
     {
 
@@ -147,7 +148,7 @@ public class TicketCheckinController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteticketCheckin(int id)
     {
         await _ticketCheckinService.DeleteTicketCheckinAsync(id);

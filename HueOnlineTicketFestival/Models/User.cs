@@ -35,5 +35,11 @@ public partial class User
     public DateTime? VerifyAt { get; set; }
     public string PasswordResetToken { get; set; } = string.Empty;
     public DateTime? ResetTokenExpries { get; set; }
+    public string RefreshToken { get; set; } = string.Empty;
+
+    public DateTime RefreshTokenCreated { get; set; }
+    public DateTime RefreshTokenExpries { get; set; }
+
+
 
 }

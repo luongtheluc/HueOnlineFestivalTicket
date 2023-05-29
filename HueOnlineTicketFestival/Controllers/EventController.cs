@@ -4,6 +4,7 @@ using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
 using HueOnlineTicketFestival.data;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/Events")]
@@ -81,7 +82,7 @@ public class EventController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddEvent(EventRequest events)
     {
         _logger.LogInformation("Creating a new Event");
@@ -110,8 +111,8 @@ public class EventController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEvent(int id, [FromBody] Event events)
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventRequest events)
     {
 
         _logger.LogInformation("update a Event");
@@ -127,7 +128,15 @@ public class EventController : ControllerBase
         }
         try
         {
-            await _EventService.UpdateEventAsync(id, events);
+            var newEvent = new Event
+            {
+                EventContent = events.EventContent,
+                EventName = events.EventName,
+                EventTypeId = events.EventTypeId,
+                CreateAt = DateTime.Now
+
+            };
+            await _EventService.UpdateEventAsync(id, newEvent);
             var result = CreatedAtAction(nameof(GetEventById), new { id = events.EventId }, events);
             return Ok(new ApiResponse
             {
@@ -148,7 +157,7 @@ public class EventController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEvent(int id)
     {
         await _EventService.DeleteEventAsync(id);

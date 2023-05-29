@@ -7,6 +7,8 @@ namespace HueOnlineTicketFestival.data
 {
     public class EventRequest
     {
+        public int EventId { get; set; }
+
         public int EventTypeId { get; set; }
 
         public string? EventName { get; set; }

@@ -81,7 +81,7 @@ public class ArtistController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddArtist(Artist Artist)
     {
         _logger.LogInformation("Creating a new Artist");
@@ -110,7 +110,7 @@ public class ArtistController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateArtist(int id, [FromBody] Artist Artist)
     {
 
@@ -148,7 +148,7 @@ public class ArtistController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteArtist(int id)
     {
         await _ArtistService.DeleteArtistAsync(id);

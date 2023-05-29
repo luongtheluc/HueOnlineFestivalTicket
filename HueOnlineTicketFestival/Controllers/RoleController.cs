@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using HueOnlineTicketFestival.Models;
 using Microsoft.Bot.Connector;
 using HueOnlineTicketFestival.Prototypes;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/Roles")]
@@ -18,7 +19,7 @@ public class RoleController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllRoles()
     {
         _logger.LogInformation("get");
@@ -49,7 +50,7 @@ public class RoleController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetRoleById(int id)
     {
         _logger.LogInformation("get ");
@@ -80,7 +81,7 @@ public class RoleController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddRole(Role role)
     {
         _logger.LogInformation("Creating a new Role");
@@ -109,7 +110,7 @@ public class RoleController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateRole(int id, [FromBody] Role role)
     {
 
@@ -147,7 +148,7 @@ public class RoleController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}"), Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteRole(int id)
     {
         await _RoleService.DeleteRoleAsync(id);
